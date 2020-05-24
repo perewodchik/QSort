@@ -71,8 +71,7 @@ void quicksortPureThread(std::vector<int>& v, int l, int r)
     int q = partition(v, l, r);
     if (threads.load() > 0)
     {
-        std::thread left([&]() {quicksortPureThread(v, l, q); threads++; });
-        threads--;
+        std::thread left([&]() { threads--;  quicksortPureThread(v, l, q); threads++; });
         quicksortPureThread(v, q + 1, r);
         left.join();
     } else
@@ -92,7 +91,7 @@ void output(const std::vector<int>& v)
 int main()
 {
     uint64_t NMAX{};
-    std::cout << "Enter elements to sort (preferably between 1m and 100m: ";
+    std::cout << "Enter elements to sort (preferably between 1m and 100m): ";
     std::cin >> NMAX;
 
     std::vector<int> sample(NMAX);
