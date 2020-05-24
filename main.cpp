@@ -6,8 +6,6 @@
 #include <chrono>
 #include <atomic>
 
-constexpr int NMAX = 10000000;
-
 std::atomic<int> threads;
 
 int partition(std::vector<int>& v, int l, int r)
@@ -63,7 +61,6 @@ void quicksortAsync(std::vector<int>& v, int l, int r)
     left.get();
     if (launch == std::launch::async)
         threads++;
-
     right.get();
 }
 
@@ -83,7 +80,6 @@ void quicksortPureThread(std::vector<int>& v, int l, int r)
         quicksortPureThread(v, l, q);
         quicksortPureThread(v, q + 1, r);
     }
-    ;
 }
 
 void output(const std::vector<int>& v)
@@ -95,19 +91,22 @@ void output(const std::vector<int>& v)
 
 int main()
 {
+    uint64_t NMAX{};
+    std::cout << "Enter elements to sort (preferably between 1m and 100m: ";
+    std::cin >> NMAX;
+
     std::vector<int> sample(NMAX);
     
     std::mt19937 rand(time(0));
-    for (int i = 0; i < NMAX; i++)
+    for (uint64_t i = 0; i < NMAX; i++)
         sample[i] = rand();
-
 
     {
         std::cout << "No multithreading: ";
         
-        std::vector<int> testNoThread = sample;
+        std::vector<int> test = sample;
         auto start = std::chrono::system_clock::now();
-        quicksortNoThread(testNoThread, 0, testNoThread.size() - 1);
+        quicksortNoThread(test, 0, test.size() - 1);
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> timePassed = end - start;
         std::cout << "sorted " << NMAX << " elements in " << timePassed.count() << " seconds\n";
@@ -133,9 +132,9 @@ int main()
         threads = std::thread::hardware_concurrency();
         if (threads == 0) threads = 2;
 
-        std::vector<int> testThread = sample;
+        std::vector<int> test = sample;
         auto start = std::chrono::system_clock::now();
-        quicksortAsync(testThread, 0, testThread.size() - 1);
+        quicksortAsync(test, 0, test.size() - 1);
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> timePassed = end - start;
         std::cout << "sorted " << NMAX << " elements in " << timePassed.count() << " seconds\n";
